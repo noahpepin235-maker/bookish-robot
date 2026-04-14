@@ -1,5 +1,5 @@
--- 🌷 Dandy's World SAFE OP HUB - Noah Edition (FULL AUTO PLAY - NO SKILLCHECK + 36.5 WALKSPEED + UNDER-MAP EVASION)
-print("🌷 Noah's Hub with GUI Loaded 🔥 - FULL AUTO PLAY (Machines + Smart Evasion)")
+-- 🌷 Dandy's World SAFE OP HUB - Noah Edition (Clean GUI 2026)
+print("🌷 Noah's Clean Dandy's World Hub Loaded - FULL AUTO PLAY + Smart Evasion")
 
 local player = game.Players.LocalPlayer
 local gui = Instance.new("ScreenGui")
@@ -7,91 +7,79 @@ gui.Name = "NoahHub"
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
+-- Main Frame
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 300, 0, 520)
-frame.Position = UDim2.new(0.5, -150, 0.5, -260)
-frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+frame.Size = UDim2.new(0, 320, 0, 550)
+frame.Position = UDim2.new(0.5, -160, 0.5, -275)
+frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 frame.BorderSizePixel = 0
 frame.Active = true
 frame.Draggable = true
 frame.Parent = gui
 
+-- Pink Title Bar
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1, 0, 0, 60)
+titleBar.BackgroundColor3 = Color3.fromRGB(255, 0, 100)
+titleBar.BorderSizePixel = 0
+titleBar.Parent = frame
+
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 50)
-title.BackgroundColor3 = Color3.fromRGB(255, 0, 100)
+title.Size = UDim2.new(1, 0, 1, 0)
+title.BackgroundTransparency = 1
 title.Text = "🌷 Noah's Dandy's World OP Hub"
-title.TextColor3 = Color3.new(1,1,1)
+title.TextColor3 = Color3.new(1, 1, 1)
 title.TextScaled = true
 title.Font = Enum.Font.GothamBold
-title.Parent = frame
+title.Parent = titleBar
 
+-- Clean Toggle Function
 local function createToggle(name, yPos, default, callback)
-    local toggle = Instance.new("TextButton")
-    toggle.Size = UDim2.new(0.9, 0, 0, 40)
-    toggle.Position = UDim2.new(0.05, 0, 0, yPos)
-    toggle.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    toggle.Text = name .. ": " .. (default and "ON" or "OFF")
-    toggle.TextColor3 = Color3.new(1,1,1)
-    toggle.TextScaled = true
-    toggle.Font = Enum.Font.Gotham
-    toggle.Parent = frame
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0.95, 0, 0, 45)
+    btn.Position = UDim2.new(0.025, 0, 0, yPos)
+    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    btn.Text = name .. ": OFF"
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.TextScaled = true
+    btn.Font = Enum.Font.GothamSemibold
+    btn.Parent = frame
     
     local enabled = default
-    toggle.MouseButton1Click:Connect(function()
+    
+    local function update()
+        btn.Text = name .. ": " .. (enabled and "ON" or "OFF")
+        btn.BackgroundColor3 = enabled and Color3.fromRGB(0, 170, 80) or Color3.fromRGB(30, 30, 30)
+    end
+    
+    btn.MouseButton1Click:Connect(function()
         enabled = not enabled
-        toggle.Text = name .. ": " .. (enabled and "ON" or "OFF")
+        update()
         callback(enabled)
     end)
+    
+    update()
     callback(default)
 end
 
--- ==================== FEATURES ====================
+-- ==================== TOGGLES ====================
+createToggle("God Mode (Infinite Health)", 70, false, function(s) getgenv().GodMode = s end)
+createToggle("Anti-Twisted (No Collision)", 125, false, function(s) getgenv().AntiTwisted = s end)
+createToggle("FULL AUTO PLAY (Machines + Teleport)", 180, false, function(s) getgenv().AutoPlay = s end)
+createToggle("Auto Tapes / Items", 235, false, function(s) getgenv().AutoTapes = s end)
+createToggle("Kill Aura", 290, false, function(s) getgenv().KillAura = s end)
+createToggle("Auto Research Capsules", 345, false, function(s) getgenv().AutoCapsules = s end)
+createToggle("Speed Hack (68)", 400, false, function(s) getgenv().SpeedHack = s end)
+createToggle("No Fall Damage + Anti-Ragdoll", 455, false, function(s) getgenv().NoFallDamage = s end)
+createToggle("Twisted ESP", 510, false, function(s) getgenv().TwistedESP = s end)
 
-createToggle("God Mode (Infinite Health)", 60, false, function(state)
-    getgenv().GodMode = state
-end)
-
-createToggle("Anti-Twisted (No Collision)", 110, false, function(state)
-    getgenv().AntiTwisted = state
-end)
-
-createToggle("FULL AUTO PLAY (Machines + Teleport)", 160, false, function(state)
-    getgenv().AutoPlay = state
-end)
-
-createToggle("Auto Tapes / Items", 210, false, function(state)
-    getgenv().AutoTapes = state
-end)
-
-createToggle("Kill Aura", 260, false, function(state)
-    getgenv().KillAura = state
-end)
-
-createToggle("Auto Research Capsules", 310, false, function(state)
-    getgenv().AutoCapsules = state
-end)
-
-createToggle("Speed Hack (68)", 360, false, function(state)
-    getgenv().SpeedHack = state
-end)
-
-createToggle("No Fall Damage + Anti-Ragdoll", 410, false, function(state)
-    getgenv().NoFallDamage = state
-end)
-
-createToggle("Twisted ESP", 460, false, function(state)
-    getgenv().TwistedESP = state
-end)
-
--- ==================== ESP SYSTEM ====================
-
+-- ==================== TWISTED ESP ====================
 local espFolder = Instance.new("Folder")
 espFolder.Name = "TwistedESP"
 espFolder.Parent = gui
 
 local function createESP(target)
     if not target:FindFirstChild("HumanoidRootPart") then return end
-    
     local billboard = Instance.new("BillboardGui")
     billboard.Name = "TwistedESP_" .. target.Name
     billboard.Adornee = target.HumanoidRootPart
@@ -117,31 +105,26 @@ spawn(function()
     while task.wait(0.5) do
         if getgenv().TwistedESP then
             pcall(function()
+                -- Clean old ESP
                 for _, esp in pairs(espFolder:GetChildren()) do
-                    local targetName = esp.Name:match("TwistedESP_(.+)")
-                    if targetName then
-                        local stillExists = false
-                        for _, obj in pairs(workspace:GetDescendants()) do
-                            if obj.Name == targetName and obj:FindFirstChild("HumanoidRootPart") then
-                                stillExists = true
-                                break
-                            end
+                    local name = esp.Name:match("TwistedESP_(.+)")
+                    if name then
+                        if not workspace:FindFirstChild(name, true) then
+                            esp:Destroy()
                         end
-                        if not stillExists then esp:Destroy() end
                     end
                 end
-
+                -- Add new
                 for _, v in pairs(workspace:GetDescendants()) do
                     if v.Name:lower():find("twisted") and v:FindFirstChild("HumanoidRootPart") then
-                        local espName = "TwistedESP_" .. v.Name
-                        if not espFolder:FindFirstChild(espName) then
+                        if not espFolder:FindFirstChild("TwistedESP_" .. v.Name) then
                             createESP(v)
                         end
                     end
                 end
             end)
         else
-            for _, esp in pairs(espFolder:GetChildren()) do esp:Destroy() end
+            espFolder:ClearAllChildren()
         end
     end
 end)
@@ -164,13 +147,16 @@ spawn(function()
     end
 end)
 
--- Speed Hack (68)
+-- Speed Hack
 spawn(function()
     while task.wait(0.1) do
         if getgenv().SpeedHack then
             pcall(function()
                 local hum = player.Character and player.Character:FindFirstChild("Humanoid")
-                if hum then hum.WalkSpeed = 68; hum.JumpPower = 90 end
+                if hum then
+                    hum.WalkSpeed = 68
+                    hum.JumpPower = 90
+                end
             end)
         end
     end
@@ -185,101 +171,91 @@ spawn(function()
                 if not char or not char:FindFirstChild("HumanoidRootPart") then return end
                 local root = char.HumanoidRootPart
                 local hum = char:FindFirstChild("Humanoid")
-                if hum then
-                    hum.WalkSpeed = 36.5
-                end
+                if hum then hum.WalkSpeed = 36.5 end
 
-                -- === EVASION: If Twisted sees you → go under map ===
-                local minTwistedDist = math.huge
+                -- Twisted detection (based on typical ranges ~35-80 studs)
                 local anyCloseTwisted = false
+                local closestTwistedDist = math.huge
+
                 for _, v in pairs(workspace:GetDescendants()) do
                     if v.Name:lower():find("twisted") and v:FindFirstChild("HumanoidRootPart") then
                         local dist = (root.Position - v.HumanoidRootPart.Position).Magnitude
-                        if dist < minTwistedDist then
-                            minTwistedDist = dist
-                        end
-                        if dist < 55 then
-                            anyCloseTwisted = true
-                        end
+                        if dist < closestTwistedDist then closestTwistedDist = dist end
+                        if dist < 55 then anyCloseTwisted = true end
                     end
                 end
 
                 if anyCloseTwisted then
-                    -- Twisted sees you → hide under map
-                    root.CFrame = CFrame.new(root.Position.X, -380, root.Position.Z) -- deep underground
-                    return -- skip machine logic while hiding
-                end
-
-                if minTwistedDist > 100 then
-                    -- Safe again → return to surface (loop will handle machine next tick)
-                end
-
-                -- === MACHINE LOGIC ===
-                -- First check if you're already on a machine
-                local onMachine = false
-                local machinePrompt = nil
-
-                for _, v in pairs(workspace:GetDescendants()) do
-                    if v:IsA("ProximityPrompt") and v.Enabled then
-                        local parentName = v.Parent.Name:lower()
-                        local action = (v.ActionText or ""):lower()
-                        if parentName:find("machine") or parentName:find("extract") or parentName:find("generator") or action:find("extract") or action:find("machine") then
-                            local part = v.Parent:FindFirstChildWhichIsA("BasePart") or v.Parent
-                            if part then
-                                local dist = (root.Position - part.Position).Magnitude
-                                if dist < 15 then
-                                    onMachine = true
-                                    machinePrompt = v
-                                    break
-                                end
-                            end
-                        end
-                    end
-                end
-
-                if onMachine and machinePrompt then
-                    -- You're on a machine → STOP teleporting + auto-click prompt rapidly (bypasses skillcheck)
-                    fireproximityprompt(machinePrompt)
-                    task.wait(0.035) -- fast spam for perfect bypass
+                    -- Hide under map
+                    root.CFrame = CFrame.new(root.Position.X, -400, root.Position.Z)
                     return
                 end
 
-                -- Not on a machine → find closest and teleport + initial fire
-                local closestPrompt = nil
-                local closestDist = math.huge
-                local bestPart = nil
+                -- Safe → continue
+                if closestTwistedDist > 100 then
+                    -- Safe to surface (handled naturally by loop)
+                end
+
+                -- Check if already on a machine
+                local onMachine = false
+                local currentPrompt = nil
 
                 for _, v in pairs(workspace:GetDescendants()) do
                     if v:IsA("ProximityPrompt") and v.Enabled then
                         local parentName = v.Parent.Name:lower()
                         local action = (v.ActionText or ""):lower()
-                        if parentName:find("machine") or parentName:find("extract") or parentName:find("generator") or action:find("extract") or action:find("machine") then
+                        if parentName:find("machine") or parentName:find("extract") or parentName:find("generator") or 
+                           action:find("extract") or action:find("machine") then
+                            local part = v.Parent:FindFirstChildWhichIsA("BasePart") or v.Parent
+                            if part and (root.Position - part.Position).Magnitude < 18 then
+                                onMachine = true
+                                currentPrompt = v
+                                break
+                            end
+                        end
+                    end
+                end
+
+                if onMachine and currentPrompt then
+                    -- Stay + rapid fire (bypasses skill check)
+                    fireproximityprompt(currentPrompt)
+                    task.wait(0.04)
+                    return
+                end
+
+                -- Teleport to closest machine
+                local closestPrompt, closestPart, closestDist = nil, nil, math.huge
+
+                for _, v in pairs(workspace:GetDescendants()) do
+                    if v:IsA("ProximityPrompt") and v.Enabled then
+                        local parentName = v.Parent.Name:lower()
+                        local action = (v.ActionText or ""):lower()
+                        if parentName:find("machine") or parentName:find("extract") or parentName:find("generator") or 
+                           action:find("extract") or action:find("machine") then
                             local part = v.Parent:FindFirstChildWhichIsA("BasePart") or v.Parent
                             if part then
                                 local dist = (root.Position - part.Position).Magnitude
-                                if dist < closestDist and dist < 250 then
+                                if dist < closestDist and dist < 280 then
                                     closestDist = dist
                                     closestPrompt = v
-                                    bestPart = part
+                                    closestPart = part
                                 end
                             end
                         end
                     end
                 end
 
-                if closestPrompt and bestPart then
-                    -- Teleport to machine
-                    root.CFrame = CFrame.new(bestPart.Position + Vector3.new(0, 5, 0))
-                    task.wait(0.05)
+                if closestPrompt and closestPart then
+                    root.CFrame = CFrame.new(closestPart.Position + Vector3.new(0, 6, 0))
+                    task.wait(0.06)
                     fireproximityprompt(closestPrompt)
-                    -- Next loop will detect you're now "on" it and stay + spam
                 end
             end)
         end
     end
 end)
 
--- Anti-Twisted
+-- Anti-Twisted (No Collision)
 spawn(function()
     while task.wait(0.3) do
         if getgenv().AntiTwisted then
@@ -396,10 +372,8 @@ spawn(function()
     end
 end)
 
-print("✅ GUI Loaded! FULL AUTO PLAY with new features:")
-print("   • Teleports to machines + auto-stops while you're on one")
-print("   • Auto-clicks machine prompt rapidly (skillcheck fully removed)")
-print("   • If Twisted sees you (within ~55 studs) → hides under map")
-print("   • Returns to machine when all Twisteds are >100 studs away")
-print("   • WalkSpeed locked at 36.5 during Auto Play")
-print("   Drag the GUI to move it. Enable other toggles as needed! 🌷")
+print("✅ Clean GUI + FULL AUTO PLAY Loaded!")
+print("   • Machines: Teleport → Stay & auto-complete (skillcheck bypassed)")
+print("   • Evasion: Under map if Twisted <55 studs | Return when >100 studs")
+print("   • WalkSpeed: 36.5 during Auto Play")
+print("   Drag the pink title bar to move the GUI. Stay safe & farm well! 🌷")
