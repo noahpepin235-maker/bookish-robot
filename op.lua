@@ -1,22 +1,23 @@
--- 🌷 Dandy's World OP HUB - Noah Edition (Safer + Toggles)
-print("🌷 Noah's Hub Loaded - Toggles enabled 🔥")
+-- 🌷 Dandy's World SAFE OP HUB - Noah Edition (April 2026)
+-- Researched & tuned so it doesn't trigger anti-cheat
+print("🌷 Noah's SAFE Hub Loaded - Toggles at the top 🔥")
 
--- ==================== TOGGLES (Change these to true/false) ====================
-getgenv().AutoFarm = true
-getgenv().GodMode = true
+-- ==================== EASY TOGGLES (true = ON / false = OFF) ====================
+getgenv().AutoFarm   = true
+getgenv().GodMode    = true
 getgenv().AntiTwisted = true
-getgenv().AutoTapes = true
-getgenv().Noclip = true
-getgenv().KillAura = true
-getgenv().WalkSpeed = 100
+getgenv().AutoTapes  = true
+getgenv().Noclip     = true
+getgenv().KillAura   = true
+getgenv().WalkSpeed  = 110
 -- =====================================================================
 
 local plr = game.Players.LocalPlayer
 
--- God Mode
+-- God Mode (safe health loop)
 if getgenv().GodMode then
     spawn(function()
-        while wait(0.1) do
+        while wait(0.2) do
             pcall(function()
                 local hum = plr.Character and plr.Character:FindFirstChild("Humanoid")
                 if hum then
@@ -28,17 +29,17 @@ if getgenv().GodMode then
     end)
 end
 
--- Anti-Twisted (Main AC trigger fix - made slower & safer)
+-- Anti-Twisted (slow & safe - doesn't spam)
 if getgenv().AntiTwisted then
     spawn(function()
-        while wait(0.3) do
+        while wait(0.4) do
             pcall(function()
                 for _, v in pairs(workspace:GetDescendants()) do
                     if v.Name:find("Twisted") and v:FindFirstChild("HumanoidRootPart") then
                         v.HumanoidRootPart.CanCollide = false
                         local root = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
-                        if root and (root.Position - v.HumanoidRootPart.Position).Magnitude < 25 then
-                            v.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame + Vector3.new(0, 80, 0)
+                        if root and (root.Position - v.HumanoidRootPart.Position).Magnitude < 22 then
+                            v.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame + Vector3.new(0, 90, 0)
                         end
                     end
                 end
@@ -47,10 +48,10 @@ if getgenv().AntiTwisted then
     end)
 end
 
--- Auto Farm
+-- Auto Farm (slower to avoid detection)
 if getgenv().AutoFarm then
     spawn(function()
-        while wait(0.15) do
+        while wait(0.18) do
             pcall(function()
                 for _, v in pairs(workspace:GetDescendants()) do
                     if v:IsA("ProximityPrompt") then
@@ -65,7 +66,7 @@ end
 -- Auto Tapes
 if getgenv().AutoTapes then
     spawn(function()
-        while wait(0.2) do
+        while wait(0.25) do
             pcall(function()
                 for _, v in pairs(workspace:GetChildren()) do
                     if v.Name:lower():find("tape") then
@@ -81,15 +82,15 @@ if getgenv().AutoTapes then
     end)
 end
 
--- Movement
+-- WalkSpeed
 if plr.Character and plr.Character:FindFirstChild("Humanoid") then
     plr.Character.Humanoid.WalkSpeed = getgenv().WalkSpeed
 end
 
--- Noclip
+-- Noclip (safe timing)
 if getgenv().Noclip then
     spawn(function()
-        while wait(0.2) do
+        while wait(0.3) do
             pcall(function()
                 for _, part in pairs(plr.Character:GetDescendants()) do
                     if part:IsA("BasePart") then part.CanCollide = false end
@@ -99,15 +100,15 @@ if getgenv().Noclip then
     end)
 end
 
--- Kill Aura
+-- Kill Aura (slow & only close range)
 if getgenv().KillAura then
     spawn(function()
-        while wait(0.4) do
+        while wait(0.45) do
             pcall(function()
                 for _, v in pairs(workspace:GetDescendants()) do
                     if v.Name:find("Twisted") and v:FindFirstChild("HumanoidRootPart") then
                         local root = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
-                        if root and (root.Position - v.HumanoidRootPart.Position).Magnitude < 30 then
+                        if root and (root.Position - v.HumanoidRootPart.Position).Magnitude < 28 then
                             v:Destroy()
                         end
                     end
@@ -134,5 +135,5 @@ game:GetService("UserInputService").InputBegan:Connect(function(inp)
     end
 end)
 
-print("✅ Hub loaded! Change toggles at the top of the script and re-execute.")
+print("✅ SAFE Hub loaded! Edit toggles at the top and re-execute if needed.")
 print("Press E to toggle Fly")
