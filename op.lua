@@ -1,5 +1,5 @@
--- 🌷 Noah's Dandy's World Hub - JJSpolit FINAL OPTIMIZED (Everything Works)
-print("🌷 JJSpolit FINAL VERSION - Auto Items + Machines should now work reliably")
+-- 🌷 Noah's Dandy's World Hub - JJSpolit FINAL (Everything in 100000+ Radius EXCEPT Dandy's Shop)
+print("🌷 JJSpolit FINAL - FULL MAP AUTO (Items + Machines) | Skips Dandy's Shop")
 
 local player = game.Players.LocalPlayer
 local gui = Instance.new("ScreenGui")
@@ -58,20 +58,33 @@ end
 
 -- Toggles
 createToggle("God Mode", 70, false, function(s) getgenv().GodMode = s end)
-createToggle("FULL AUTO PLAY (Machines + Items)", 125, false, function(s) getgenv().AutoPlay = s end)
+createToggle("FULL AUTO PLAY (100k Radius - Skip Dandy Shop)", 125, false, function(s) getgenv().AutoPlay = s end)
 createToggle("Speed Hack (68)", 180, false, function(s) getgenv().SpeedHack = s end)
 createToggle("Twisted ESP", 235, false, function(s) getgenv().TwistedESP = s end)
 
--- God Mode (very light)
+-- Helper: Skip Dandy's Shop / Gift Shop / Register
+local function isShopRelated(obj)
+    if not obj then return false end
+    local name = (obj.Name or ""):lower()
+    if name:find("dandy") or name:find("shop") or name:find("register") or name:find("gift") or name:find("flower") then
+        return true
+    end
+    for _, ancestor in pairs(obj:GetAncestors()) do
+        local aName = (ancestor.Name or ""):lower()
+        if aName:find("dandy") or aName:find("shop") or aName:find("register") or aName:find("gift") then
+            return true
+        end
+    end
+    return false
+end
+
+-- God Mode (light)
 spawn(function()
     while task.wait(0.3) do
         if getgenv().GodMode then
             pcall(function()
                 local hum = player.Character and player.Character:FindFirstChild("Humanoid")
-                if hum then
-                    hum.Health = 999999
-                    hum.MaxHealth = 999999
-                end
+                if hum then hum.Health = 999999; hum.MaxHealth = 999999 end
             end)
         end
     end
@@ -89,9 +102,9 @@ spawn(function()
     end
 end)
 
--- FULL AUTO PLAY - Machines + Items (JJSpolit optimized - no lag)
+-- FULL AUTO PLAY - 100000 Radius (Items + Machines) | Skips Dandy's Shop
 spawn(function()
-    while task.wait(0.22) do
+    while task.wait(0.23) do
         if getgenv().AutoPlay then
             pcall(function()
                 local char = player.Character
@@ -100,13 +113,14 @@ spawn(function()
                 local hum = char:FindFirstChild("Humanoid")
                 if hum then hum.WalkSpeed = 36.5 end
 
-                -- === AUTO ITEMS / TAPES (aggressive - this is what picked up 1 item before, now improved) ===
+                -- AUTO ITEMS / TAPES (entire map except shop)
                 for _, v in pairs(workspace:GetDescendants()) do
                     if v.Name:lower():find("tape") or v.Name:lower():find("item") or v.Name:lower():find("collect") then
+                        if isShopRelated(v) then continue end
                         local part = v:IsA("BasePart") and v or v:FindFirstChildWhichIsA("BasePart")
                         if part then
                             local dist = (root.Position - part.Position).Magnitude
-                            if dist < 80 then
+                            if dist < 100000 then
                                 root.CFrame = CFrame.new(part.Position + Vector3.new(0, 4, 0))
                                 task.wait(0.08)
                                 if v:FindFirstChild("TouchInterest") then
@@ -116,30 +130,31 @@ spawn(function()
                                 elseif v:FindFirstChildWhichIsA("ProximityPrompt") then
                                     fireproximityprompt(v:FindFirstChildWhichIsA("ProximityPrompt"))
                                 end
-                                break -- only handle one item per loop to prevent lag
+                                break -- one item per loop (prevents lag)
                             end
                         end
                     end
                 end
 
-                -- === AUTO MACHINES (fixed & reliable on JJSpolit) ===
+                -- AUTO MACHINES (entire map except shop)
                 for _, prompt in pairs(workspace:GetDescendants()) do
                     if prompt:IsA("ProximityPrompt") and prompt.Enabled then
+                        if isShopRelated(prompt) or isShopRelated(prompt.Parent) then continue end
                         local part = prompt.Parent:FindFirstChildWhichIsA("BasePart") or prompt.Parent
                         if part then
                             local dist = (root.Position - part.Position).Magnitude
-                            if dist < 50 then
-                                -- Move onto machine
+                            if dist < 100000 then
+                                -- Teleport to machine
                                 if dist > 15 then
                                     root.CFrame = CFrame.new(part.Position + Vector3.new(0, 6, 0))
                                     task.wait(0.1)
                                 end
-                                -- Spam fire (this is what bypasses skillcheck)
+                                -- Spam to bypass skillcheck
                                 for i = 1, 5 do
                                     fireproximityprompt(prompt)
                                     task.wait(0.04)
                                 end
-                                break -- only one machine per loop
+                                break -- one machine per loop
                             end
                         end
                     end
@@ -149,7 +164,7 @@ spawn(function()
     end
 end)
 
--- Simple Twisted ESP (slow to avoid lag)
+-- Simple Twisted ESP (slow for no lag)
 local espFolder = Instance.new("Folder")
 espFolder.Name = "TwistedESP"
 espFolder.Parent = gui
@@ -175,7 +190,7 @@ local function createESP(target)
 end
 
 spawn(function()
-    while task.wait(1.2) do
+    while task.wait(1.3) do
         if getgenv().TwistedESP then
             pcall(function()
                 espFolder:ClearAllChildren()
@@ -191,8 +206,8 @@ spawn(function()
     end
 end)
 
-print("✅ EVERYTHING OPTIMIZED FOR JJSpolit!")
-print("Turn ON 'FULL AUTO PLAY (Machines + Items)'")
-print("Walk around the map - it will now grab ALL items/tapes AND complete machines")
-print("If it still only grabs 1 item, walk closer to other items after the first one")
-print("Let me know exactly what happens now (did it grab more items? Did machines work?)")
+print("✅ FULL MAP AUTO ENABLED!")
+print("   • Grabs EVERY item/tape & completes EVERY machine in 100000+ radius")
+print("   • Completely skips Dandy's Shop / Gift Shop / Register")
+print("Turn ON 'FULL AUTO PLAY' and just walk around - it will farm the whole map")
+print("If you want even bigger range or more features, tell me!")
