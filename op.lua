@@ -1,57 +1,98 @@
--- 🌷 Dandy's World SAFE OP HUB - Noah Edition (April 2026)
--- Researched & tuned so it doesn't trigger anti-cheat
-print("🌷 Noah's SAFE Hub Loaded - Toggles at the top 🔥")
+-- 🌷 Dandy's World SAFE OP HUB with GUI - Noah Edition
+print("🌷 Noah's Hub with GUI Loaded 🔥")
 
--- ==================== EASY TOGGLES (true = ON / false = OFF) ====================
-getgenv().AutoFarm   = true
-getgenv().GodMode    = true
-getgenv().AntiTwisted = true
-getgenv().AutoTapes  = true
-getgenv().Noclip     = true
-getgenv().KillAura   = true
-getgenv().WalkSpeed  = 110
--- =====================================================================
+local player = game.Players.LocalPlayer
+local gui = Instance.new("ScreenGui")
+gui.Name = "NoahHub"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
 
-local plr = game.Players.LocalPlayer
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 280, 0, 400)
+frame.Position = UDim2.new(0.5, -140, 0.5, -200)
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+frame.BorderSizePixel = 0
+frame.Parent = gui
 
--- God Mode (safe health loop)
-if getgenv().GodMode then
-    spawn(function()
-        while wait(0.2) do
-            pcall(function()
-                local hum = plr.Character and plr.Character:FindFirstChild("Humanoid")
-                if hum then
-                    hum.Health = 999999
-                    hum.MaxHealth = 999999
-                end
-            end)
-        end
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 50)
+title.BackgroundColor3 = Color3.fromRGB(255, 0, 100)
+title.Text = "Noah's Dandy's World OP Hub"
+title.TextColor3 = Color3.new(1,1,1)
+title.TextScaled = true
+title.Parent = frame
+
+-- Toggle Function
+local function createToggle(name, yPos, default, callback)
+    local toggle = Instance.new("TextButton")
+    toggle.Size = UDim2.new(0.9, 0, 0, 40)
+    toggle.Position = UDim2.new(0.05, 0, 0, yPos)
+    toggle.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    toggle.Text = name .. ": " .. (default and "ON" or "OFF")
+    toggle.TextColor3 = Color3.new(1,1,1)
+    toggle.TextScaled = true
+    toggle.Parent = frame
+    
+    local enabled = default
+    toggle.MouseButton1Click:Connect(function()
+        enabled = not enabled
+        toggle.Text = name .. ": " .. (enabled and "ON" or "OFF")
+        callback(enabled)
     end)
+    callback(default)
 end
 
--- Anti-Twisted (slow & safe - doesn't spam)
-if getgenv().AntiTwisted then
-    spawn(function()
-        while wait(0.4) do
+-- ==================== FEATURES ====================
+
+createToggle("God Mode", 60, true, function(state)
+    getgenv().GodMode = state
+end)
+
+createToggle("Anti-Twisted", 110, true, function(state)
+    getgenv().AntiTwisted = state
+end)
+
+createToggle("Auto Farm", 160, true, function(state)
+    getgenv().AutoFarm = state
+end)
+
+createToggle("Auto Tapes", 210, true, function(state)
+    getgenv().AutoTapes = state
+end)
+
+createToggle("Kill Aura", 260, true, function(state)
+    getgenv().KillAura = state
+end)
+
+-- Main Loops
+spawn(function()
+    while wait(0.15) do
+        if getgenv().GodMode then
+            pcall(function()
+                local hum = player.Character and player.Character:FindFirstChild("Humanoid")
+                if hum then hum.Health = 999999 end
+            end)
+        end
+    end
+end)
+
+spawn(function()
+    while wait(0.35) do
+        if getgenv().AntiTwisted then
             pcall(function()
                 for _, v in pairs(workspace:GetDescendants()) do
                     if v.Name:find("Twisted") and v:FindFirstChild("HumanoidRootPart") then
                         v.HumanoidRootPart.CanCollide = false
-                        local root = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
-                        if root and (root.Position - v.HumanoidRootPart.Position).Magnitude < 22 then
-                            v.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame + Vector3.new(0, 90, 0)
-                        end
                     end
                 end
             end)
         end
-    end)
-end
+    end
+end)
 
--- Auto Farm (slower to avoid detection)
-if getgenv().AutoFarm then
-    spawn(function()
-        while wait(0.18) do
+spawn(function()
+    while wait(0.2) do
+        if getgenv().AutoFarm then
             pcall(function()
                 for _, v in pairs(workspace:GetDescendants()) do
                     if v:IsA("ProximityPrompt") then
@@ -60,17 +101,16 @@ if getgenv().AutoFarm then
                 end
             end)
         end
-    end)
-end
+    end
+end)
 
--- Auto Tapes
-if getgenv().AutoTapes then
-    spawn(function()
-        while wait(0.25) do
+spawn(function()
+    while wait(0.25) do
+        if getgenv().AutoTapes then
             pcall(function()
                 for _, v in pairs(workspace:GetChildren()) do
                     if v.Name:lower():find("tape") then
-                        local root = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+                        local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
                         if root then
                             firetouchinterest(root, v, 0)
                             firetouchinterest(root, v, 1)
@@ -79,61 +119,24 @@ if getgenv().AutoTapes then
                 end
             end)
         end
-    end)
-end
+    end
+end)
 
--- WalkSpeed
-if plr.Character and plr.Character:FindFirstChild("Humanoid") then
-    plr.Character.Humanoid.WalkSpeed = getgenv().WalkSpeed
-end
-
--- Noclip (safe timing)
-if getgenv().Noclip then
-    spawn(function()
-        while wait(0.3) do
-            pcall(function()
-                for _, part in pairs(plr.Character:GetDescendants()) do
-                    if part:IsA("BasePart") then part.CanCollide = false end
-                end
-            end)
-        end
-    end)
-end
-
--- Kill Aura (slow & only close range)
-if getgenv().KillAura then
-    spawn(function()
-        while wait(0.45) do
+spawn(function()
+    while wait(0.4) do
+        if getgenv().KillAura then
             pcall(function()
                 for _, v in pairs(workspace:GetDescendants()) do
                     if v.Name:find("Twisted") and v:FindFirstChild("HumanoidRootPart") then
-                        local root = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
-                        if root and (root.Position - v.HumanoidRootPart.Position).Magnitude < 28 then
+                        local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                        if root and (root.Position - v.HumanoidRootPart.Position).Magnitude < 30 then
                             v:Destroy()
                         end
                     end
                 end
             end)
         end
-    end)
-end
-
--- Fly (Press E)
-local fly = false
-game:GetService("UserInputService").InputBegan:Connect(function(inp)
-    if inp.KeyCode == Enum.KeyCode.E then
-        fly = not fly
-        local root = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
-        if root then
-            local bv = root:FindFirstChild("FlyVelocity") or Instance.new("BodyVelocity")
-            bv.Name = "FlyVelocity"
-            bv.MaxForce = Vector3.new(1e5,1e5,1e5)
-            bv.Velocity = fly and root.CFrame.LookVector * 100 or Vector3.new(0,0,0)
-            bv.Parent = root
-            print("🚀 Fly: " .. (fly and "ON" or "OFF"))
-        end
     end
 end)
 
-print("✅ SAFE Hub loaded! Edit toggles at the top and re-execute if needed.")
-print("Press E to toggle Fly")
+print("GUI Loaded! Click the buttons to toggle features.")
