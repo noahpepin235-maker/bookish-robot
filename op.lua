@@ -1,5 +1,6 @@
+```lua
 -- 🌷 Noah's Hip Height Changer + WalkSpeed + Full Bright + Enhanced Teleports | For Dandy's World
--- Made by noahexploits (Machines + Research Capsules TP added & enhanced)
+-- Made by noahexploits (All teleports now grouped in one clean "Teleports" section)
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
     Name = "🌷 Noah's Hip Height Changer + All Teleports",
@@ -53,7 +54,7 @@ local function teleportToTarget(target, heightOffset, targetType)
     })
 end
 
--- Machines (covers "Machine", "CircleMachine", "TreadmillMachine", "Generator", etc.)
+-- Machines
 local function getAllMachines()
     local found = {}
     for _, obj in ipairs(workspace:GetDescendants()) do
@@ -71,16 +72,13 @@ local function teleportToNearestMachine()
         Rayfield:Notify({Title = "Error", Content = "No machines found yet! (wait for floor to load)", Duration = 5})
         return
     end
-
     local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
-
     table.sort(machines, function(a, b)
         local posA = a:IsA("Model") and a:GetPivot().Position or a.Position
         local posB = b:IsA("Model") and b:GetPivot().Position or b.Position
         return (posA - hrp.Position).Magnitude < (posB - hrp.Position).Magnitude
     end)
-
     teleportToTarget(machines[1], 5, "nearest machine")
 end
 
@@ -90,16 +88,13 @@ local function teleportToNextMachine()
         Rayfield:Notify({Title = "Error", Content = "No machines found yet! (wait for floor to load)", Duration = 5})
         return
     end
-
     local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
-
     table.sort(machines, function(a, b)
         local posA = a:IsA("Model") and a:GetPivot().Position or a.Position
         local posB = b:IsA("Model") and b:GetPivot().Position or b.Position
         return (posA - hrp.Position).Magnitude < (posB - hrp.Position).Magnitude
     end)
-
     currentMachineIndex = (currentMachineIndex % #machines) + 1
     teleportToTarget(machines[currentMachineIndex], 5, "next machine")
 end
@@ -122,16 +117,13 @@ local function teleportToNearestCapsule()
         Rayfield:Notify({Title = "Error", Content = "No research capsules found yet! (wait for floor to load)", Duration = 5})
         return
     end
-
     local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
-
     table.sort(capsules, function(a, b)
         local posA = a:IsA("Model") and a:GetPivot().Position or a.Position
         local posB = b:IsA("Model") and b:GetPivot().Position or b.Position
         return (posA - hrp.Position).Magnitude < (posB - hrp.Position).Magnitude
     end)
-
     teleportToTarget(capsules[1], 3, "nearest research capsule")
 end
 
@@ -141,21 +133,18 @@ local function teleportToNextCapsule()
         Rayfield:Notify({Title = "Error", Content = "No research capsules found yet! (wait for floor to load)", Duration = 5})
         return
     end
-
     local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
-
     table.sort(capsules, function(a, b)
         local posA = a:IsA("Model") and a:GetPivot().Position or a.Position
         local posB = b:IsA("Model") and b:GetPivot().Position or b.Position
         return (posA - hrp.Position).Magnitude < (posB - hrp.Position).Magnitude
     end)
-
     currentCapsuleIndex = (currentCapsuleIndex % #capsules) + 1
     teleportToTarget(capsules[currentCapsuleIndex], 3, "next research capsule")
 end
 
--- ====================== ELEVATOR TP (unchanged, still enhanced) ======================
+-- Elevator TP
 local function findElevator()
     local elevator = workspace:FindFirstChild("Elevator", true)
     if elevator then return elevator end
@@ -198,7 +187,7 @@ local function teleportInsideElevator()
     end
 end
 
--- ====================== HIP HEIGHT (unchanged) ======================
+-- ====================== HIP HEIGHT ======================
 local function enableSwayFix(character)
     if swayFixConnection then swayFixConnection:Disconnect() end
     local hrp = character:WaitForChild("HumanoidRootPart", 5)
@@ -303,7 +292,7 @@ local function disableFullBright()
     Lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
 end
 
--- ====================== UI ======================
+-- ====================== UI (All teleports now in ONE "Teleports" section) ======================
 local MainTab = Window:CreateTab("Main", 4483362458)
 
 MainTab:CreateSection("Hip Height")
@@ -363,7 +352,9 @@ local FullBrightToggle = MainTab:CreateToggle({
     end,
 })
 
+-- ==================== ALL TELEPORTS IN ONE CLEAN SECTION ====================
 MainTab:CreateSection("Teleports")
+
 MainTab:CreateButton({
     Name = "🚀 Teleport Inside Elevator",
     Callback = function()
@@ -371,25 +362,26 @@ MainTab:CreateButton({
     end,
 })
 
-MainTab:CreateSection("Machine Teleports (Enhanced)")
 MainTab:CreateButton({
     Name = "🚀 Nearest Machine",
     Callback = teleportToNearestMachine,
 })
+
 MainTab:CreateButton({
     Name = "🔄 Next / Different Machine",
     Callback = teleportToNextMachine,
 })
 
-MainTab:CreateSection("Research Capsule Teleports (Enhanced)")
 MainTab:CreateButton({
     Name = "🚀 Nearest Research Capsule",
     Callback = teleportToNearestCapsule,
 })
+
 MainTab:CreateButton({
     Name = "🔄 Next / Different Capsule",
     Callback = teleportToNextCapsule,
 })
+-- ==================== END OF TELEPORTS SECTION ====================
 
 -- Quick Hip Height Presets
 MainTab:CreateSection("Quick Hip Height Presets")
@@ -419,12 +411,12 @@ end
 -- Info
 MainTab:CreateSection("Info")
 MainTab:CreateLabel("Made by noahexploits")
-MainTab:CreateLabel("✅ Added: Machines + Research Capsules")
-MainTab:CreateLabel("✅ Enhanced detection + Next/Different option")
-MainTab:CreateLabel("Use 'Next' after finishing one to cycle to another!")
+MainTab:CreateLabel("✅ All teleports grouped in one 'Teleports' section")
+MainTab:CreateLabel("Use 'Next' buttons to cycle after finishing one!")
 
 Rayfield:Notify({
     Title = "🌷 Script Loaded Successfully",
-    Content = "Hip Height • WalkSpeed • Full Bright • All Teleports\nMachines & Capsules now fully enhanced!",
+    Content = "All teleports now neatly organized under one section!\nHip Height • WalkSpeed • Full Bright • Enhanced TPs",
     Duration = 6,
 })
+```
