@@ -1,6 +1,5 @@
-```lua
 -- 🌷 Noah's Hip Height Changer + WalkSpeed + Full Bright + Enhanced Teleports | For Dandy's World
--- Made by noahexploits (All teleports now grouped in one clean "Teleports" section)
+-- Made by noahexploits (FIXED - cleaned syntax + all teleports in one section)
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
     Name = "🌷 Noah's Hip Height Changer + All Teleports",
@@ -292,7 +291,7 @@ local function disableFullBright()
     Lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
 end
 
--- ====================== UI (All teleports now in ONE "Teleports" section) ======================
+-- ====================== UI ======================
 local MainTab = Window:CreateTab("Main", 4483362458)
 
 MainTab:CreateSection("Hip Height")
@@ -352,7 +351,7 @@ local FullBrightToggle = MainTab:CreateToggle({
     end,
 })
 
--- ==================== ALL TELEPORTS IN ONE CLEAN SECTION ====================
+-- ALL TELEPORTS IN ONE CLEAN SECTION
 MainTab:CreateSection("Teleports")
 
 MainTab:CreateButton({
@@ -381,7 +380,6 @@ MainTab:CreateButton({
     Name = "🔄 Next / Different Capsule",
     Callback = teleportToNextCapsule,
 })
--- ==================== END OF TELEPORTS SECTION ====================
 
 -- Quick Hip Height Presets
 MainTab:CreateSection("Quick Hip Height Presets")
@@ -416,7 +414,7 @@ MainTab:CreateLabel("Use 'Next' buttons to cycle after finishing one!")
 
 Rayfield:Notify({
     Title = "🌷 Script Loaded Successfully",
-    Content = "All teleports now neatly organized under one section!\nHip Height • WalkSpeed • Full Bright • Enhanced TPs",
+    Content = "Fixed & ready!\nAll teleports now in one clean section",
     Duration = 6,
+    Image = 4483362458,
 })
-```
