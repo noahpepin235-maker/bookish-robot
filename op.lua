@@ -1,213 +1,188 @@
--- 🌷 Noah's Dandy's World Hub - JJSpolit FINAL (Everything in 100000+ Radius EXCEPT Dandy's Shop)
-print("🌷 JJSpolit FINAL - FULL MAP AUTO (Items + Machines) | Skips Dandy's Shop")
+-- 🌷 Noah's Hip Height Changer | For Dandy's World
+-- Made by noahexploits
 
-local player = game.Players.LocalPlayer
-local gui = Instance.new("ScreenGui")
-gui.Name = "NoahHub"
-gui.ResetOnSpawn = false
-gui.Parent = player:WaitForChild("PlayerGui")
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 320, 0, 420)
-frame.Position = UDim2.new(0.5, -160, 0.5, -210)
-frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-frame.BorderSizePixel = 0
-frame.Active = true
-frame.Draggable = true
-frame.Parent = gui
+local Window = Rayfield:CreateWindow({
+    Name = "🌷 Noah's Hip Height Changer",
+    LoadingTitle = "Noah's Hip Height Changer",
+    LoadingSubtitle = "Made by noahexploits",
+    Theme = "Default",
+    DisableRayfieldPrompts = false,
+    DisableBuildWarnings = false,
+    ConfigurationSaving = {
+        Enabled = false,
+    },
+    Discord = {
+        Enabled = false,
+    },
+})
 
-local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 60)
-titleBar.BackgroundColor3 = Color3.fromRGB(255, 0, 100)
-titleBar.BorderSizePixel = 0
-titleBar.Parent = frame
+-- Services
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
 
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 1, 0)
-title.BackgroundTransparency = 1
-title.Text = "🌷 Noah's Dandy's World OP Hub"
-title.TextColor3 = Color3.new(1,1,1)
-title.TextScaled = true
-title.Font = Enum.Font.GothamBold
-title.Parent = titleBar
+-- Variables
+local isEnabled = false
+local currentHeight = 2
+local hipHeightConnection = nil
+local swayFixConnection = nil
 
-local function createToggle(name, yPos, default, callback)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0.95, 0, 0, 45)
-    btn.Position = UDim2.new(0.025, 0, 0, yPos)
-    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    btn.Text = name .. ": OFF"
-    btn.TextColor3 = Color3.new(1, 1, 1)
-    btn.TextScaled = true
-    btn.Font = Enum.Font.GothamSemibold
-    btn.Parent = frame
+-- Default RootJoint C0 (Roblox standard)
+local DEFAULT_ROOT_C0 = CFrame.new(0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 1, 0)
+
+-- Sway Fix
+local function enableSwayFix(character)
+    if swayFixConnection then 
+        swayFixConnection:Disconnect() 
+        swayFixConnection = nil 
+    end
+    local hrp = character:WaitForChild("HumanoidRootPart", 5)
+    if not hrp then return end
+    local rootJoint = hrp:WaitForChild("RootJoint", 5)
+    if not rootJoint then return end
     
-    local enabled = default
-    local function update()
-        btn.Text = name .. ": " .. (enabled and "ON" or "OFF")
-        btn.BackgroundColor3 = enabled and Color3.fromRGB(0, 170, 80) or Color3.fromRGB(30, 30, 30)
-    end
-    btn.MouseButton1Click:Connect(function()
-        enabled = not enabled
-        update()
-        callback(enabled)
+    swayFixConnection = RunService.Stepped:Connect(function()
+        if isEnabled and rootJoint and rootJoint.Parent then
+            local c0 = rootJoint.C0
+            local rx, ry, rz = c0:ToEulerAnglesXYZ()
+            rootJoint.C0 = CFrame.new(0, c0.Y, c0.Z) * CFrame.fromEulerAnglesXYZ(rx, ry, rz)
+        end
     end)
-    update()
-    callback(default)
 end
 
--- Toggles
-createToggle("God Mode", 70, false, function(s) getgenv().GodMode = s end)
-createToggle("FULL AUTO PLAY (100k Radius - Skip Dandy Shop)", 125, false, function(s) getgenv().AutoPlay = s end)
-createToggle("Speed Hack (68)", 180, false, function(s) getgenv().SpeedHack = s end)
-createToggle("Twisted ESP", 235, false, function(s) getgenv().TwistedESP = s end)
-
--- Helper: Skip Dandy's Shop / Gift Shop / Register
-local function isShopRelated(obj)
-    if not obj then return false end
-    local name = (obj.Name or ""):lower()
-    if name:find("dandy") or name:find("shop") or name:find("register") or name:find("gift") or name:find("flower") then
-        return true
+local function disableSwayFix(character)
+    if swayFixConnection then 
+        swayFixConnection:Disconnect() 
+        swayFixConnection = nil 
     end
-    for _, ancestor in pairs(obj:GetAncestors()) do
-        local aName = (ancestor.Name or ""):lower()
-        if aName:find("dandy") or aName:find("shop") or aName:find("register") or aName:find("gift") then
-            return true
+    local char = character or LocalPlayer.Character
+    if char then
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            local rootJoint = hrp:FindFirstChild("RootJoint")
+            if rootJoint then
+                rootJoint.C0 = DEFAULT_ROOT_C0
+            end
         end
     end
-    return false
 end
 
--- God Mode (light)
-spawn(function()
-    while task.wait(0.3) do
-        if getgenv().GodMode then
-            pcall(function()
-                local hum = player.Character and player.Character:FindFirstChild("Humanoid")
-                if hum then hum.Health = 999999; hum.MaxHealth = 999999 end
-            end)
+local function applyHipHeight(height)
+    local character = LocalPlayer.Character
+    if character then
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.HipHeight = height
         end
+        enableSwayFix(character)
     end
-end)
-
--- Speed Hack
-spawn(function()
-    while task.wait(0.2) do
-        if getgenv().SpeedHack then
-            pcall(function()
-                local hum = player.Character and player.Character:FindFirstChild("Humanoid")
-                if hum then hum.WalkSpeed = 68 end
-            end)
+    
+    if hipHeightConnection then 
+        hipHeightConnection:Disconnect() 
+    end
+    
+    hipHeightConnection = LocalPlayer.CharacterAdded:Connect(function(char)
+        task.wait(0.5)
+        if isEnabled then
+            local hum = char:WaitForChild("Humanoid", 5)
+            if hum then
+                hum.HipHeight = currentHeight
+            end
+            enableSwayFix(char)
         end
-    end
-end)
-
--- FULL AUTO PLAY - 100000 Radius (Items + Machines) | Skips Dandy's Shop
-spawn(function()
-    while task.wait(0.23) do
-        if getgenv().AutoPlay then
-            pcall(function()
-                local char = player.Character
-                if not char or not char:FindFirstChild("HumanoidRootPart") then return end
-                local root = char.HumanoidRootPart
-                local hum = char:FindFirstChild("Humanoid")
-                if hum then hum.WalkSpeed = 36.5 end
-
-                -- AUTO ITEMS / TAPES (entire map except shop)
-                for _, v in pairs(workspace:GetDescendants()) do
-                    if v.Name:lower():find("tape") or v.Name:lower():find("item") or v.Name:lower():find("collect") then
-                        if isShopRelated(v) then continue end
-                        local part = v:IsA("BasePart") and v or v:FindFirstChildWhichIsA("BasePart")
-                        if part then
-                            local dist = (root.Position - part.Position).Magnitude
-                            if dist < 100000 then
-                                root.CFrame = CFrame.new(part.Position + Vector3.new(0, 4, 0))
-                                task.wait(0.08)
-                                if v:FindFirstChild("TouchInterest") then
-                                    firetouchinterest(root, v, 0)
-                                    task.wait(0.04)
-                                    firetouchinterest(root, v, 1)
-                                elseif v:FindFirstChildWhichIsA("ProximityPrompt") then
-                                    fireproximityprompt(v:FindFirstChildWhichIsA("ProximityPrompt"))
-                                end
-                                break -- one item per loop (prevents lag)
-                            end
-                        end
-                    end
-                end
-
-                -- AUTO MACHINES (entire map except shop)
-                for _, prompt in pairs(workspace:GetDescendants()) do
-                    if prompt:IsA("ProximityPrompt") and prompt.Enabled then
-                        if isShopRelated(prompt) or isShopRelated(prompt.Parent) then continue end
-                        local part = prompt.Parent:FindFirstChildWhichIsA("BasePart") or prompt.Parent
-                        if part then
-                            local dist = (root.Position - part.Position).Magnitude
-                            if dist < 100000 then
-                                -- Teleport to machine
-                                if dist > 15 then
-                                    root.CFrame = CFrame.new(part.Position + Vector3.new(0, 6, 0))
-                                    task.wait(0.1)
-                                end
-                                -- Spam to bypass skillcheck
-                                for i = 1, 5 do
-                                    fireproximityprompt(prompt)
-                                    task.wait(0.04)
-                                end
-                                break -- one machine per loop
-                            end
-                        end
-                    end
-                end
-            end)
-        end
-    end
-end)
-
--- Simple Twisted ESP (slow for no lag)
-local espFolder = Instance.new("Folder")
-espFolder.Name = "TwistedESP"
-espFolder.Parent = gui
-
-local function createESP(target)
-    if not target:FindFirstChild("HumanoidRootPart") then return end
-    local billboard = Instance.new("BillboardGui")
-    billboard.Adornee = target.HumanoidRootPart
-    billboard.Size = UDim2.new(0, 180, 0, 40)
-    billboard.StudsOffset = Vector3.new(0, 3, 0)
-    billboard.AlwaysOnTop = true
-    billboard.Parent = espFolder
-
-    local text = Instance.new("TextLabel")
-    text.Size = UDim2.new(1,0,1,0)
-    text.BackgroundTransparency = 1
-    text.Text = "🩸 TWISTED"
-    text.TextColor3 = Color3.fromRGB(255, 0, 80)
-    text.TextScaled = true
-    text.Font = Enum.Font.GothamBold
-    text.TextStrokeTransparency = 0
-    text.Parent = billboard
+    end)
 end
 
-spawn(function()
-    while task.wait(1.3) do
-        if getgenv().TwistedESP then
-            pcall(function()
-                espFolder:ClearAllChildren()
-                for _, v in pairs(workspace:GetDescendants()) do
-                    if v.Name:lower():find("twisted") and v:FindFirstChild("HumanoidRootPart") then
-                        createESP(v)
-                    end
-                end
-            end)
+local function resetHipHeight()
+    local character = LocalPlayer.Character
+    if character then
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.HipHeight = 2
+        end
+    end
+    disableSwayFix()
+    if hipHeightConnection then
+        hipHeightConnection:Disconnect()
+        hipHeightConnection = nil
+    end
+end
+
+-- UI Tab
+local MainTab = Window:CreateTab("Hip Height", 4483362458)
+
+-- Controls Section
+MainTab:CreateSection("Controls")
+
+local Toggle = MainTab:CreateToggle({
+    Name = "Enable Hip Height",
+    CurrentValue = false,
+    Flag = "HipHeightToggle",
+    Callback = function(Value)
+        isEnabled = Value
+        if isEnabled then
+            applyHipHeight(currentHeight)
         else
-            espFolder:ClearAllChildren()
+            resetHipHeight()
         end
-    end
-end)
+    end,
+})
 
-print("✅ FULL MAP AUTO ENABLED!")
-print("   • Grabs EVERY item/tape & completes EVERY machine in 100000+ radius")
-print("   • Completely skips Dandy's Shop / Gift Shop / Register")
-print("Turn ON 'FULL AUTO PLAY' and just walk around - it will farm the whole map")
-print("If you want even bigger range or more features, tell me!")
+local Slider = MainTab:CreateSlider({
+    Name = "Hip Height",
+    Range = {2, 17},
+    Increment = 1,
+    Suffix = " studs",
+    CurrentValue = 2,
+    Flag = "HipHeightSlider",
+    Callback = function(Value)
+        currentHeight = Value
+        if isEnabled then
+            applyHipHeight(currentHeight)
+        end
+    end,
+})
+
+-- Quick Presets
+MainTab:CreateSection("Quick Presets")
+
+local presets = {
+    {name = "Default (2)", value = 2},
+    {name = "12 (Cannot distract pebble, dyle, dandy)", value = 12},
+    {name = "17 (can distract lethals and pebble)", value = 17},
+}
+
+for _, preset in ipairs(presets) do
+    MainTab:CreateButton({
+        Name = preset.name,
+        Callback = function()
+            currentHeight = preset.value
+            Slider:Set(preset.value)
+            if isEnabled then
+                applyHipHeight(preset.value)
+            end
+            Rayfield:Notify({
+                Title = "Preset Applied",
+                Content = "Hip Height set to " .. preset.value .. " studs",
+                Duration = 2,
+                Image = 4483362458,
+            })
+        end,
+    })
+end
+
+-- Info Section
+MainTab:CreateSection("Info")
+MainTab:CreateLabel("Hip Height Range: 2 - 17 studs")
+MainTab:CreateLabel("Default Roblox Hip Height: ~2 studs")
+MainTab:CreateLabel("Made by noahexploits")
+
+-- Load Notification
+Rayfield:Notify({
+    Title = "🌷 Noah's Hip Height Changer",
+    Content = "Loaded successfully!\nMade by noahexploits",
+    Duration = 5,
+    Image = 4483362458,
+})
