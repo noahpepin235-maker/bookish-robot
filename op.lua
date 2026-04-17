@@ -62,17 +62,14 @@ local function stopFlying()
     if hum then hum.PlatformStand = false end
 end
 
--- ====================== MONSTER + TWISTED DETECTION ======================
+-- ====================== MONSTER + TWISTED ======================
 local function getAllMonsters()
     local monsters = {}
     for _, obj in ipairs(workspace:GetDescendants()) do
         local nameLower = obj.Name:lower()
-        -- Now gets BOTH Monster and Twisted
         if nameLower:find("monster") or nameLower:find("twisted") then
             local root = obj:FindFirstChildWhichIsA("BasePart") or (obj:IsA("Model") and obj.PrimaryPart)
-            if root then 
-                table.insert(monsters, root) 
-            end
+            if root then table.insert(monsters, root) end
         end
     end
     return monsters
@@ -113,19 +110,17 @@ local function autoResearchLoop()
     Rayfield:Notify({Title = "✅ Research Cycle Done", Content = "Researched all Monsters & Twisteds", Duration = 5})
 end
 
--- ====================== ESP (Monster + Twisted) ======================
+-- ====================== ESP ======================
 local function updateMonsterESP()
     if not ESPEnabled then
-        for _, data in pairs(ESPObjects) do 
-            pcall(function() data.H:Destroy() data.B:Destroy() end) 
-        end
+        for _, data in pairs(ESPObjects) do pcall(function() data.H:Destroy() data.B:Destroy() end) end
         ESPObjects = {}
         return
     end
 
     for _, obj in ipairs(workspace:GetDescendants()) do
         local nameLower = obj.Name:lower()
-        if (nameLower:find("monster") or nameLower:find("twisted")) then
+        if nameLower:find("monster") or nameLower:find("twisted") then
             local root = obj:FindFirstChildWhichIsA("BasePart") or (obj:IsA("Model") and obj.PrimaryPart)
             if root and not ESPObjects[root] then
                 local h = Instance.new("Highlight")
@@ -157,7 +152,7 @@ local function updateMonsterESP()
     end
 end
 
--- ====================== OTHER FEATURES ======================
+-- ====================== TELEPORTS ======================
 local function teleportToTarget(target, heightOffset, name)
     local char = LocalPlayer.Character
     if not char then return end
@@ -176,11 +171,14 @@ local function teleportToNearestMachine()
             table.insert(m, v)
         end
     end
-    if #m == 0 then return end
+    if #m == 0 then 
+        Rayfield:Notify({Title="Error", Content="No machines found", Duration=5}) 
+        return 
+    end
     table.sort(m, function(a,b) 
         return (a:GetPivot().Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < (b:GetPivot().Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude 
     end)
-    teleportToTarget(m[1], 5, "Nearest Machine")
+    teleportToTarget(m[1], 10, "Nearest Machine (10 studs above)")  -- CHANGED TO 10
 end
 
 local function teleportInsideElevator()
@@ -188,6 +186,7 @@ local function teleportInsideElevator()
     if elev then teleportToTarget(elev, 4, "Elevator") end
 end
 
+-- ====================== OTHER FEATURES ======================
 local function applyHipHeight(height)
     currentHeight = height
     local char = LocalPlayer.Character
@@ -235,7 +234,7 @@ MainTab:CreateToggle({Name = "Full Bright", CurrentValue = false, Callback = fun
 
 MainTab:CreateSection("Teleports")
 MainTab:CreateButton({Name = "🚀 Teleport Inside Elevator", Callback = teleportInsideElevator})
-MainTab:CreateButton({Name = "🚀 Nearest Machine", Callback = teleportToNearestMachine})
+MainTab:CreateButton({Name = "🚀 Nearest Machine (10 studs above)", Callback = teleportToNearestMachine})
 
 MainTab:CreateSection("🌟 Monster & Twisted Research")
 MainTab:CreateToggle({Name = "Monster + Twisted ESP (Pink)", CurrentValue = false, Callback = function(v) ESPEnabled = v end})
@@ -248,6 +247,6 @@ RunService.Heartbeat:Connect(updateMonsterESP)
 
 Rayfield:Notify({
     Title = "🌷 Loaded Successfully!",
-    Content = "Now researches BOTH Monster and Twisted!",
+    Content = "Nearest Machine TP is now 10 studs above!",
     Duration = 10,
 })
