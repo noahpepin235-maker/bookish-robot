@@ -1,5 +1,5 @@
 -- 🌷 Noah's Full Pack - Hip Height + WalkSpeed + Full Bright + Teleports + 40 Stud Flying Research + ESP
--- Made by noahexploits | Monster + Twisted Research
+-- Made by noahexploits | Monster + Twisted + Capsule Teleports
 
 print("🌷 Noah's Script Loading...")
 
@@ -36,7 +36,9 @@ local currentFlightHeight = 40
 local ESPEnabled = false
 local ESPObjects = {}
 
--- ====================== STRONG 40 STUD FLYING ======================
+local currentCapsuleIndex = 1
+
+-- ====================== 40 STUD FLYING ======================
 local function startFlying()
     local char = LocalPlayer.Character
     if not char then return end
@@ -77,7 +79,6 @@ end
 
 local function autoResearchLoop()
     if not ResearchOn then return end
-
     local char = LocalPlayer.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
 
@@ -86,17 +87,16 @@ local function autoResearchLoop()
 
     local targets = getAllMonsters()
     if #targets == 0 then
-        Rayfield:Notify({Title = "Auto Research", Content = "No Monster or Twisted found yet!", Duration = 6})
+        Rayfield:Notify({Title = "Auto Research", Content = "No Monster or Twisted found!", Duration = 6})
         stopFlying()
         ResearchOn = false
         return
     end
 
-    Rayfield:Notify({Title = "🌟 MONSTER + TWISTED RESEARCH", Content = "Flying 40 studs above all targets...", Duration = 7})
+    Rayfield:Notify({Title = "🌟 RESEARCHING MONSTERS + TWISTEDS", Content = "40 studs above...", Duration = 7})
 
     for _, target in ipairs(targets) do
         if not ResearchOn then break end
-
         char.HumanoidRootPart.CFrame = target.CFrame * CFrame.new(0, currentFlightHeight, 0)
 
         local screenPos = workspace.CurrentCamera:WorldToViewportPoint(target.Position + Vector3.new(0, 20, 0))
@@ -107,52 +107,46 @@ local function autoResearchLoop()
 
     if OriginalCFrame then char.HumanoidRootPart.CFrame = OriginalCFrame end
     stopFlying()
-    Rayfield:Notify({Title = "✅ Research Cycle Done", Content = "Researched all Monsters & Twisteds", Duration = 5})
+    Rayfield:Notify({Title = "✅ Cycle Done", Content = "All Monsters & Twisteds researched", Duration = 5})
 end
 
--- ====================== ESP ======================
-local function updateMonsterESP()
-    if not ESPEnabled then
-        for _, data in pairs(ESPObjects) do pcall(function() data.H:Destroy() data.B:Destroy() end) end
-        ESPObjects = {}
-        return
-    end
-
+-- ====================== RESEARCH CAPSULE TELEPORTS ======================
+local function getAllCapsules()
+    local capsules = {}
     for _, obj in ipairs(workspace:GetDescendants()) do
-        local nameLower = obj.Name:lower()
-        if nameLower:find("monster") or nameLower:find("twisted") then
-            local root = obj:FindFirstChildWhichIsA("BasePart") or (obj:IsA("Model") and obj.PrimaryPart)
-            if root and not ESPObjects[root] then
-                local h = Instance.new("Highlight")
-                h.Adornee = root
-                h.FillColor = Color3.fromRGB(255, 0, 100)
-                h.OutlineColor = Color3.fromRGB(255, 255, 255)
-                h.FillTransparency = 0.4
-                h.Parent = root
-
-                local b = Instance.new("BillboardGui")
-                b.Adornee = root
-                b.Size = UDim2.new(0, 200, 0, 50)
-                b.StudsOffset = Vector3.new(0, 5, 0)
-                b.AlwaysOnTop = true
-                b.Parent = root
-
-                local t = Instance.new("TextLabel")
-                t.Size = UDim2.new(1,0,1,0)
-                t.BackgroundTransparency = 1
-                t.Text = root.Parent.Name
-                t.TextColor3 = Color3.fromRGB(255, 100, 200)
-                t.TextScaled = true
-                t.Font = Enum.Font.GothamBold
-                t.Parent = b
-
-                ESPObjects[root] = {H = h, B = b}
-            end
+        if obj.Name:lower():find("capsule") and (obj:IsA("Model") or obj:IsA("BasePart")) then
+            table.insert(capsules, obj)
         end
     end
+    return capsules
 end
 
--- ====================== TELEPORTS ======================
+local function teleportToNearestCapsule()
+    local capsules = getAllCapsules()
+    if #capsules == 0 then
+        Rayfield:Notify({Title = "Error", Content = "No Research Capsules found!", Duration = 5})
+        return
+    end
+    table.sort(capsules, function(a, b)
+        local pa = a:GetPivot().Position
+        local pb = b:GetPivot().Position
+        return (pa - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < (pb - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+    end)
+    local target = capsules[1]
+    teleportToTarget(target, 8, "Nearest Research Capsule")
+end
+
+local function teleportToNextCapsule()
+    local capsules = getAllCapsules()
+    if #capsules == 0 then
+        Rayfield:Notify({Title = "Error", Content = "No Research Capsules found!", Duration = 5})
+        return
+    end
+    currentCapsuleIndex = (currentCapsuleIndex % #capsules) + 1
+    local target = capsules[currentCapsuleIndex]
+    teleportToTarget(target, 8, "Next Research Capsule")
+end
+
 local function teleportToTarget(target, heightOffset, name)
     local char = LocalPlayer.Character
     if not char then return end
@@ -160,9 +154,10 @@ local function teleportToTarget(target, heightOffset, name)
     if not hrp or not target then return end
     local cf = target:IsA("Model") and target:GetPivot() or target.CFrame
     hrp.CFrame = cf * CFrame.new(0, heightOffset or 5, 0)
-    Rayfield:Notify({Title = "✅ Teleported", Content = "To " .. (name or "target"), Duration = 3})
+    Rayfield:Notify({Title = "✅ Teleported", Content = name, Duration = 3})
 end
 
+-- ====================== OTHER TELEPORTS ======================
 local function teleportToNearestMachine()
     local m = {}
     for _, v in ipairs(workspace:GetDescendants()) do
@@ -171,14 +166,11 @@ local function teleportToNearestMachine()
             table.insert(m, v)
         end
     end
-    if #m == 0 then 
-        Rayfield:Notify({Title="Error", Content="No machines found", Duration=5}) 
-        return 
-    end
+    if #m == 0 then return end
     table.sort(m, function(a,b) 
         return (a:GetPivot().Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < (b:GetPivot().Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude 
     end)
-    teleportToTarget(m[1], 10, "Nearest Machine (10 studs above)")  -- CHANGED TO 10
+    teleportToTarget(m[1], 10, "Nearest Machine (10 studs)")
 end
 
 local function teleportInsideElevator()
@@ -186,7 +178,42 @@ local function teleportInsideElevator()
     if elev then teleportToTarget(elev, 4, "Elevator") end
 end
 
--- ====================== OTHER FEATURES ======================
+-- ====================== ESP, HIP HEIGHT, WALKSPEED, FULLBRIGHT ======================
+local function updateMonsterESP()
+    if not ESPEnabled then
+        for _, data in pairs(ESPObjects) do pcall(function() data.H:Destroy() data.B:Destroy() end) end
+        ESPObjects = {}
+        return
+    end
+    -- (same as previous version)
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj.Name:lower():find("monster") or obj.Name:lower():find("twisted") then
+            local root = obj:FindFirstChildWhichIsA("BasePart") or (obj:IsA("Model") and obj.PrimaryPart)
+            if root and not ESPObjects[root] then
+                local h = Instance.new("Highlight", root)
+                h.FillColor = Color3.fromRGB(255, 0, 100)
+                h.OutlineColor = Color3.fromRGB(255, 255, 255)
+                h.FillTransparency = 0.4
+
+                local b = Instance.new("BillboardGui", root)
+                b.Size = UDim2.new(0, 200, 0, 50)
+                b.StudsOffset = Vector3.new(0, 5, 0)
+                b.AlwaysOnTop = true
+
+                local t = Instance.new("TextLabel", b)
+                t.Size = UDim2.new(1,0,1,0)
+                t.BackgroundTransparency = 1
+                t.Text = root.Parent.Name
+                t.TextColor3 = Color3.fromRGB(255, 100, 200)
+                t.TextScaled = true
+                t.Font = Enum.Font.GothamBold
+
+                ESPObjects[root] = {H = h, B = b}
+            end
+        end
+    end
+end
+
 local function applyHipHeight(height)
     currentHeight = height
     local char = LocalPlayer.Character
@@ -234,7 +261,9 @@ MainTab:CreateToggle({Name = "Full Bright", CurrentValue = false, Callback = fun
 
 MainTab:CreateSection("Teleports")
 MainTab:CreateButton({Name = "🚀 Teleport Inside Elevator", Callback = teleportInsideElevator})
-MainTab:CreateButton({Name = "🚀 Nearest Machine (10 studs above)", Callback = teleportToNearestMachine})
+MainTab:CreateButton({Name = "🚀 Nearest Machine (10 studs)", Callback = teleportToNearestMachine})
+MainTab:CreateButton({Name = "🚀 Nearest Research Capsule (8 studs)", Callback = teleportToNearestCapsule})
+MainTab:CreateButton({Name = "🔄 Next Research Capsule (8 studs)", Callback = teleportToNextCapsule})
 
 MainTab:CreateSection("🌟 Monster & Twisted Research")
 MainTab:CreateToggle({Name = "Monster + Twisted ESP (Pink)", CurrentValue = false, Callback = function(v) ESPEnabled = v end})
@@ -246,7 +275,7 @@ end})
 RunService.Heartbeat:Connect(updateMonsterESP)
 
 Rayfield:Notify({
-    Title = "🌷 Loaded Successfully!",
-    Content = "Nearest Machine TP is now 10 studs above!",
+    Title = "🌷 Script Loaded!",
+    Content = "Research Capsule Teleports Added (8 studs above)",
     Duration = 10,
 })
